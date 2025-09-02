@@ -1,11 +1,37 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, MessageCircle } from "lucide-react";
 
 const Index = () => {
+  const [phoneNumber, setPhoneNumber] = useState("628994656888");
+  const [message, setMessage] = useState("Halo, saya ingin konfirmasi pesanan dan mendapatkan detail login untuk akun saya.");
+
+  // Load WhatsApp settings from localStorage
+  useEffect(() => {
+    const savedNumber = localStorage.getItem("whatsappNumber");
+    const savedMessage = localStorage.getItem("whatsappMessage");
+    
+    if (savedNumber) setPhoneNumber(savedNumber);
+    if (savedMessage) setMessage(savedMessage);
+
+    // Listen for settings updates from dashboard
+    const handleSettingsUpdate = () => {
+      const updatedNumber = localStorage.getItem("whatsappNumber");
+      const updatedMessage = localStorage.getItem("whatsappMessage");
+      
+      if (updatedNumber) setPhoneNumber(updatedNumber);
+      if (updatedMessage) setMessage(updatedMessage);
+    };
+
+    window.addEventListener("whatsappSettingsUpdated", handleSettingsUpdate);
+    
+    return () => {
+      window.removeEventListener("whatsappSettingsUpdated", handleSettingsUpdate);
+    };
+  }, []);
+
   const handleWhatsAppClick = () => {
-    const phoneNumber = "628994656888";
-    const message = "Halo, saya ingin konfirmasi pesanan dan mendapatkan detail login untuk akun saya.";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
